@@ -1,4 +1,4 @@
-name: summary
+name: summarizer
 dependencies:
 - python=3.5.1
 - numpy
