@@ -6,10 +6,12 @@ import re
 import sys
 from rouge.rouge_score import rouge_l_summary_level, rouge_n
 
+
 class Summarizer():
     '''
     a text summarizer that uses lsa or lda
     '''
+
     def __init__(self):
         self.train_document = []
         self.label_document = []
@@ -24,7 +26,7 @@ class Summarizer():
         self.tfidf = TfidfTransformer()
 
         self.lsa = TruncatedSVD(n_components=10, random_state=463)
-        self.lda = LatentDirichletAllocation(n_components=10, random_state=463)
+        self.lda = LatentDirichletAllocation(n_components=10, random_state=463, learning_method='batch')
 
     def read_data(self, file_train, file_label):
 
@@ -35,14 +37,14 @@ class Summarizer():
 
                 if line.strip():
                     self.train_document.append(line.rstrip())
-                    self.train_sentences.append(sent_tokenize(line.rstrip()))
+                    self.train_sentences.append(sent_tokenize(line.rstrip(), language='turkish'))
 
         with open(file_label, 'r') as file:
             lines = file.readlines()
 
             for line in lines:
                 self.label_document.append(line.rstrip())
-                self.label_sentences.append(sent_tokenize(line.rstrip()))
+                self.label_sentences.append(sent_tokenize(line.rstrip(), language='turkish'))
 
     def lsa_summary(self, idx, type='test'):
         '''
@@ -65,7 +67,7 @@ class Summarizer():
 
         indices = list(reversed(list2))
 
-        if(type=='train'):
+        if (type == 'train'):
             indices = indices[0: len(self.label_sentences[idx])]
         else:
             indices = indices[0:2]
@@ -95,7 +97,7 @@ class Summarizer():
 
         indices = list(reversed(list2))
 
-        if(type=='train'):
+        if type == 'train':
             indices = indices[0: len(self.label_sentences[idx])]
         else:
             indices = indices[0:2]
@@ -104,23 +106,22 @@ class Summarizer():
 
         self.lda_evaluated_sentences.append(evaluated)
 
+
 if __name__ == '__main__':
 
-    print("Usage of script"
-          "for training \n"
+    print("Usage of script when training: \n"
           "python summarizer train.txt train_short.txt \n"
-          "for testing \n"
+          "Usage of script when testing: \n"
           "python summarizer \n"
-          "paste the test document as input \n")
+          "paste the test document as input: \n")
 
-    if(len(sys.argv) == 1):
-
+    if len(sys.argv) == 1:
         document = input('Enter document: ')
 
         summarizer = Summarizer()
 
         summarizer.train_document.append(document)
-        summarizer.train_sentences.append(sent_tokenize(document))
+        summarizer.train_sentences.append(sent_tokenize(document, language='turkish'))
 
         summarizer.lsa_summary(0, type='test')
         summarizer.lda_summary(0, type='test')
@@ -128,7 +129,7 @@ if __name__ == '__main__':
         print('lsa summary sentences: ' + ' '.join(summarizer.lsa_evaluated_sentences[0]) + '\n')
         print('lda summary sentences: ' + ' '.join(summarizer.lda_evaluated_sentences[0]) + '\n')
 
-    if(len(sys.argv) == 3):
+    if len(sys.argv) == 3:
 
         summarizer = Summarizer()
         summarizer.read_data(sys.argv[1], sys.argv[2])
@@ -141,8 +142,10 @@ if __name__ == '__main__':
 
         with open('train_summary.txt', 'w') as file:
             for idx in range(size_doc):
-                file.write('lsa summary sentences ' + str(idx) + ': ' + ' '.join(summarizer.lsa_evaluated_sentences[idx]) + '\n')
-                file.write('lda summary sentences ' + str(idx) + ': ' + ' '.join(summarizer.lda_evaluated_sentences[idx]) + '\n')
+                file.write('lsa summary sentences ' + str(idx) + ': ' + ' '.join(
+                    summarizer.lsa_evaluated_sentences[idx]) + '\n')
+                file.write('lda summary sentences ' + str(idx) + ': ' + ' '.join(
+                    summarizer.lda_evaluated_sentences[idx]) + '\n')
             file.close()
 
         sum_rouge_1_p = 0
@@ -162,9 +165,9 @@ if __name__ == '__main__':
             score_2 = rouge_n(summarizer.lsa_evaluated_sentences[idx], summarizer.label_sentences[idx])
             score_l = rouge_l_summary_level(summarizer.lsa_evaluated_sentences[idx], summarizer.label_sentences[idx])
 
-            #print(score_1)
-            #print(score_2)
-            #print(score_l)
+            # print(score_1)
+            # print(score_2)
+            # print(score_l)
 
             sum_rouge_1_p += score_1['p']
             sum_rouge_1_r += score_1['r']
@@ -219,9 +222,9 @@ if __name__ == '__main__':
             score_2 = rouge_n(summarizer.lda_evaluated_sentences[idx], summarizer.label_sentences[idx])
             score_l = rouge_l_summary_level(summarizer.lda_evaluated_sentences[idx], summarizer.label_sentences[idx])
 
-            #print(score_1)
-            #print(score_2)
-            #print(score_l)
+            # print(score_1)
+            # print(score_2)
+            # print(score_l)
 
             sum_rouge_1_p += score_1['p']
             sum_rouge_1_r += score_1['r']
