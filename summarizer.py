@@ -37,14 +37,14 @@ class Summarizer():
 
                 if line.strip():
                     self.train_document.append(line.rstrip())
-                    self.train_sentences.append(sent_tokenize(line.rstrip(), language='turkish'))
+                    self.train_sentences.append(sent_tokenize(line.rstrip(), language='english'))
 
         with open(file_label, 'r') as file:
             lines = file.readlines()
 
             for line in lines:
                 self.label_document.append(line.rstrip())
-                self.label_sentences.append(sent_tokenize(line.rstrip(), language='turkish'))
+                self.label_sentences.append(sent_tokenize(line.rstrip(), language='english'))
 
     def lsa_summary(self, idx, type='test'):
         '''
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         summarizer = Summarizer()
 
         summarizer.train_document.append(document)
-        summarizer.train_sentences.append(sent_tokenize(document, language='turkish'))
+        summarizer.train_sentences.append(sent_tokenize(document, language='english'))
 
         summarizer.lsa_summary(0, type='test')
         summarizer.lda_summary(0, type='test')
