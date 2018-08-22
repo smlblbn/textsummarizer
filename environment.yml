@@ -5,4 +5,5 @@ dependencies:
 - matplotlib
 - scikit-learn
 - nltk
-# pip install rouge
+- pip:
+    - rouge
